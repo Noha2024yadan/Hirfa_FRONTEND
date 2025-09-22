@@ -1,5 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:hirfa_frontend/client_profile.dart';
+import 'package:hirfa_frontend/cooperative_profile.dart';
+import 'package:hirfa_frontend/designer_profile.dart';
+import 'package:hirfa_frontend/forgot_password.dart';
+import 'package:hirfa_frontend/reset_password.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class RoleSelectionScreen extends StatefulWidget {
@@ -11,7 +16,12 @@ class RoleSelectionScreen extends StatefulWidget {
 
 class _RoleSelectionScreenState extends State<RoleSelectionScreen> {
   String? _selectedRole;
-  Map<String, String> _localizedRoles = {};
+  Map<String, String>? _localizedRoles = {
+    'client': 'Client',
+    'cooperative': 'Cooperative',
+    'designer': 'Designer',
+  };
+
   String _localizedTitle = 'Choose who you are';
   String _localizedDescription = 'Select your role to continue';
 
@@ -54,6 +64,91 @@ class _RoleSelectionScreenState extends State<RoleSelectionScreen> {
     });
   }
 
+  // Function to generate test data based on role
+  Map<String, dynamic> _generateTestData(String role) {
+    final now = DateTime.now();
+    final testData = {
+      'client': {
+        'client_id': 'test-client-id-123',
+        'nom': 'Doe',
+        'prenom': 'John',
+        'email': 'john.doe@example.com',
+        'telephone': '+1234567890',
+        'adresse': '123 Main Street, City, Country',
+        'username': 'johndoe',
+        'date_creation': now.toString(),
+        'derniere_connexion': now.toString(),
+        'statut': true,
+      },
+      'designer': {
+        'designer_id': 'test-designer-id-456',
+        'nom': 'Smith',
+        'prenom': 'Jane',
+        'email': 'jane.smith@example.com',
+        'telephone': '+0987654321',
+        'username': 'janesmith',
+        'specialites': 'Interior Design, Furniture Design',
+        'tarifs': 45.00,
+        'portfolio': 'janesmith-portfolio.com',
+        'date_creation': now.toString(),
+        'derniere_connexion': now.toString(),
+        'statut': true,
+      },
+      'cooperative': {
+        'cooperative_id': 'test-cooperative-id-789',
+        'nom': 'Artisan Collective',
+        'prenom': 'Manager',
+        'email': 'contact@artisancollective.com',
+        'telephone': '+1122334455',
+        'username': 'Artisan Collective',
+        'adresse': '456 Craft Avenue, City, Country',
+        'description':
+            'A collective of skilled artisans specializing in traditional crafts',
+        'licence': 'LIC-789123',
+        'statut_verification': true,
+        'date_creation': now.toString(),
+        'derniere_connexion': now.toString(),
+        'statut': true,
+      },
+    };
+
+    return testData[role] ?? {};
+  }
+
+  // Function to navigate to appropriate profile
+  void _navigateToProfile(String role) {
+    final testData = _generateTestData(role);
+
+    switch (role) {
+      case 'client':
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => ClientProfileScreen(clientData: testData),
+          ),
+        );
+        break;
+      case 'designer':
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => DesignerProfileScreen(designerData: testData),
+          ),
+        );
+        break;
+      case 'cooperative':
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder:
+                (context) =>
+                    CooperativeProfileScreen(cooperativeData: testData),
+          ),
+        );
+        break;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -75,57 +170,121 @@ class _RoleSelectionScreenState extends State<RoleSelectionScreen> {
             const SizedBox(height: 40),
             // Client Option
             _buildRoleOption(
-              icon: FontAwesomeIcons.user,
-              title: _localizedRoles['client']!,
+              icon: FontAwesomeIcons.solidUser,
+              title: _localizedRoles!['client']!,
               value: 'client',
             ),
             const SizedBox(height: 20),
             // Cooperative Option
             _buildRoleOption(
-              icon: FontAwesomeIcons.users,
-              title: _localizedRoles['cooperative']!,
+              icon: FontAwesomeIcons.handshakeAngle,
+              title: _localizedRoles!['cooperative']!,
               value: 'cooperative',
             ),
             const SizedBox(height: 20),
             // Designer Option
             _buildRoleOption(
-              icon: FontAwesomeIcons.paintBrush,
-              title: _localizedRoles['designer']!,
+              icon: FontAwesomeIcons.boxOpen,
+              title: _localizedRoles!['designer']!,
               value: 'designer',
             ),
             const SizedBox(height: 40),
-            ElevatedButton(
-              onPressed:
-                  _selectedRole != null
-                      ? () => _saveRoleAndContinue(_selectedRole!)
-                      : null,
-              style: ButtonStyle(
-                backgroundColor: WidgetStateProperty.resolveWith<Color>((
-                  Set<WidgetState> states,
-                ) {
-                  if (states.contains(WidgetState.disabled)) {
-                    return const Color(0xFFF0E8E2); // disabled background
-                  }
-                  return const Color(0xFF863a3a); // enabled background
-                }),
-                foregroundColor: WidgetStateProperty.resolveWith<Color>((
-                  Set<WidgetState> states,
-                ) {
-                  if (states.contains(WidgetState.disabled)) {
-                    return const Color(0xC15C4B4B); // disabled text/icon color
-                  }
-                  return Colors.white; // enabled text/icon color
-                }),
-                minimumSize: WidgetStateProperty.all(
-                  const Size(double.infinity, 50),
-                ),
-                shape: WidgetStateProperty.all(
-                  RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20),
+            Row(
+              children: [
+                // View Profile Button
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed:
+                        _selectedRole != null
+                            ? () => _navigateToProfile(_selectedRole!)
+                            : null,
+                    style: ButtonStyle(
+                      backgroundColor: WidgetStateProperty.resolveWith<Color>((
+                        Set<WidgetState> states,
+                      ) {
+                        if (states.contains(WidgetState.disabled)) {
+                          return const Color(0xFFF0E8E2);
+                        }
+                        return const Color(0xFF6C63FF);
+                      }),
+                      foregroundColor: WidgetStateProperty.resolveWith<Color>((
+                        Set<WidgetState> states,
+                      ) {
+                        if (states.contains(WidgetState.disabled)) {
+                          return const Color(0xC15C4B4B);
+                        }
+                        return Colors.white;
+                      }),
+                      minimumSize: WidgetStateProperty.all(const Size(0, 50)),
+                      shape: WidgetStateProperty.all(
+                        RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                      ),
+                    ),
+                    child: const Text('View Profile'),
                   ),
                 ),
-              ),
-              child: const Text('Continue'),
+                const SizedBox(width: 12),
+                // Continue Button
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed:
+                        _selectedRole != null
+                            ? () => _saveRoleAndContinue(_selectedRole!)
+                            : null,
+                    style: ButtonStyle(
+                      backgroundColor: WidgetStateProperty.resolveWith<Color>((
+                        Set<WidgetState> states,
+                      ) {
+                        if (states.contains(WidgetState.disabled)) {
+                          return const Color(0xFFF0E8E2);
+                        }
+                        return const Color(0xFF863a3a);
+                      }),
+                      foregroundColor: WidgetStateProperty.resolveWith<Color>((
+                        Set<WidgetState> states,
+                      ) {
+                        if (states.contains(WidgetState.disabled)) {
+                          return const Color(0xC15C4B4B);
+                        }
+                        return Colors.white;
+                      }),
+                      minimumSize: WidgetStateProperty.all(const Size(0, 50)),
+                      shape: WidgetStateProperty.all(
+                        RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                      ),
+                    ),
+                    child: const Text('Continue'),
+                  ),
+                ),
+              ],
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => ForgotPasswordScreen(),
+                  ),
+                );
+              },
+              child: Text('Forgot password'),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder:
+                        (context) =>
+                            ResetPasswordScreen(email: "salma@gmail.com"),
+                  ),
+                );
+              },
+              child: Text('reset password'),
             ),
           ],
         ),
@@ -149,7 +308,7 @@ class _RoleSelectionScreenState extends State<RoleSelectionScreen> {
       child: Container(
         padding: const EdgeInsets.all(15),
         decoration: BoxDecoration(
-          color: Color(0xFFF0E8E2),
+          color: const Color(0xFFF0E8E2),
           borderRadius: BorderRadius.circular(10),
           border: Border.all(
             color: isSelected ? const Color(0xFF863a3a) : Colors.transparent,
@@ -160,7 +319,10 @@ class _RoleSelectionScreenState extends State<RoleSelectionScreen> {
           children: [
             FaIcon(
               icon,
-              color: isSelected ? const Color(0xFF863a3a) : Color(0xC15C4B4B),
+              color:
+                  isSelected
+                      ? const Color(0xFF863a3a)
+                      : const Color(0xC15C4B4B),
               size: 24,
             ),
             const SizedBox(width: 15),
