@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:hirfa_frontend/Cooperative/HomeCooperative.dart';
+import 'package:hirfa_frontend/Cooperative/home_cooperative.dart';
 import 'package:hirfa_frontend/Cooperative/ServicesCooperatives/auth_cooperative.dart';
-import 'RegisterCooperative.dart';
+import 'package:hirfa_frontend/forgot_password.dart';
+import 'register_cooperative.dart';
 
 class Logincooperative extends StatefulWidget {
   const Logincooperative({super.key});
@@ -37,7 +38,7 @@ class _LogincooperativeState extends State<Logincooperative> {
       _showError("Password must be at least 7 characters");
     }
 
-    print("✅ Email: $email | Password: $password");
+    debugPrint("✅ Email: $email | Password: $password");
 
     // appel api
     final errorMessage = await AuthCooperative.loginCooperative(
@@ -68,10 +69,10 @@ class _LogincooperativeState extends State<Logincooperative> {
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      child: Scaffold(
-        backgroundColor: const Color(0xFFFDFBF7),
-        body: Padding(
+    return Scaffold(
+      backgroundColor: const Color(0xFFFDFBF7),
+      body: SingleChildScrollView(
+        child: Padding(
           padding: const EdgeInsets.all(24.0),
           child: Center(
             child: Column(
@@ -154,6 +155,12 @@ class _LogincooperativeState extends State<Logincooperative> {
                 ElevatedButton(
                   onPressed: () {
                     _handleLogin();
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const Homecooperative(),
+                      ),
+                    );
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFFD5B694),
@@ -176,7 +183,12 @@ class _LogincooperativeState extends State<Logincooperative> {
                 const SizedBox(height: 8),
                 TextButton(
                   onPressed: () {
-                    // Action d'inscription ici
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => ForgotPasswordScreen(),
+                      ),
+                    );
                   },
                   child: const Text(
                     'Forgot your Password ?',

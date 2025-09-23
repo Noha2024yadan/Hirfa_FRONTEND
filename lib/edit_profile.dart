@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:hirfa_frontend/Clients/ServicesClients/profile_client.dart';
+import 'package:hirfa_frontend/Cooperative/ServicesCooperatives/profile_cooperative.dart';
+import 'package:hirfa_frontend/Designers/ServicesDesigners/profile_designer.dart';
 
 class EditProfileScreen extends StatefulWidget {
   final Map<String, dynamic> userData;
@@ -26,11 +29,11 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   late TextEditingController _portfolioController;
   late TextEditingController _licenseController;
   late TextEditingController _usernameController;
+  bool _isSaving = false;
 
   @override
   void initState() {
     super.initState();
-
     // Initialize controllers with current values
     _firstNameController = TextEditingController(
       text: widget.userData['prenom'] ?? '',
@@ -152,15 +155,17 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 _buildTextField('Phone', _phoneController, isNumeric: true),
                 const SizedBox(height: 24),
               ],
-
               // Buttons Section
               Row(
                 children: [
                   Expanded(
                     child: OutlinedButton(
-                      onPressed: () {
-                        Navigator.pop(context);
-                      },
+                      onPressed:
+                          _isSaving
+                              ? null
+                              : () {
+                                Navigator.pop(context);
+                              },
                       style: OutlinedButton.styleFrom(
                         padding: const EdgeInsets.symmetric(vertical: 16),
                         shape: RoundedRectangleBorder(
@@ -180,9 +185,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                   const SizedBox(width: 16),
                   Expanded(
                     child: ElevatedButton(
-                      onPressed: () {
-                        _saveChanges();
-                      },
+                      onPressed: _isSaving ? null : _saveChanges,
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFF2d6723),
                         padding: const EdgeInsets.symmetric(vertical: 16),
@@ -190,20 +193,36 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                           borderRadius: BorderRadius.circular(12),
                         ),
                       ),
-                      child: const Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(Icons.check, size: 20, color: Colors.white),
-                          SizedBox(width: 8),
-                          Text(
-                            'Save',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ],
-                      ),
+                      child:
+                          _isSaving
+                              ? const SizedBox(
+                                width: 20,
+                                height: 20,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  valueColor: AlwaysStoppedAnimation<Color>(
+                                    Colors.white,
+                                  ),
+                                ),
+                              )
+                              : const Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(
+                                    Icons.check,
+                                    size: 20,
+                                    color: Colors.white,
+                                  ),
+                                  SizedBox(width: 8),
+                                  Text(
+                                    'Save',
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                ],
+                              ),
                     ),
                   ),
                 ],
@@ -286,7 +305,11 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     );
   }
 
-  void _saveChanges() {
+  void _saveChanges() async {
+    setState(() {
+      _isSaving = true;
+    });
+
     // Prepare the updated data
     Map<String, dynamic> updatedData = {};
 
@@ -311,21 +334,42 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       updatedData['portfolio'] = _portfolioController.text;
     }
 
-    // Here you would call your backend update function
-    // For example: updateUserProfile(updatedData);
+    String? errorMessage;
 
-    // Show a success message
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text(
-          'Profile updated successfully',
-          style: TextStyle(color: Colors.white),
+    try {
+      switch (widget.userType) {
+        case 'client':
+          errorMessage = await ProfileClient.updateProfile(updatedData);
+          break;
+        case 'cooperative':
+          errorMessage = await ProfileCooperative.updateProfile(updatedData);
+          break;
+        case 'designer':
+          errorMessage = await ProfileDesigner.updateProfile(updatedData);
+          break;
+        default:
+          errorMessage = 'Invalid user type';
+      }
+    } catch (e) {
+      errorMessage = 'Network error occurred';
+    }
+
+    setState(() {
+      _isSaving = false;
+    });
+
+    if (errorMessage == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Profile updated successfully'),
+          backgroundColor: Colors.green,
         ),
-        backgroundColor: Color(0xff2d6723),
-      ),
-    );
-
-    // Navigate back
-    Navigator.pop(context, updatedData);
+      );
+      Navigator.pop(context, updatedData);
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(errorMessage), backgroundColor: Colors.red),
+      );
+    }
   }
 }

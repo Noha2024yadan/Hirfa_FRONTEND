@@ -68,4 +68,43 @@ class AuthDesigner {
       return data['message'] ?? "Erreur de connexion.";
     }
   }
+
+  // Forgot Password for Designer
+  static Future<String?> forgotPasswordDesigner({required String email}) async {
+    final url = Uri.parse('$baseUrl/auth/designer/forgot-password');
+
+    final response = await http.post(
+      url,
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({'email': email}),
+    );
+
+    if (response.statusCode == 200) {
+      return null; // success
+    } else {
+      final data = jsonDecode(response.body);
+      return data['message'] ?? 'Unknown error occurred';
+    }
+  }
+
+  // Reset Password for Designer
+  static Future<String?> resetPasswordDesigner({
+    required String token,
+    required String newPassword,
+  }) async {
+    final url = Uri.parse('$baseUrl/auth/designer/reset-password');
+
+    final response = await http.post(
+      url,
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({'token': token, 'password': newPassword}),
+    );
+
+    if (response.statusCode == 200) {
+      return null; // success
+    } else {
+      final data = jsonDecode(response.body);
+      return data['message'] ?? 'Unknown error occurred';
+    }
+  }
 }

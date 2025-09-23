@@ -1,26 +1,44 @@
 import 'package:flutter/material.dart';
-import 'package:hirfa_frontend/Designers/Registerdesigner.dart';
-import 'package:hirfa_frontend/Designers/ServicesDesigners/auth_designer.dart';
-import 'package:hirfa_frontend/Designers/homedesigner.dart';
+import 'package:hirfa_frontend/Cooperative/login_cooperative.dart';
+import 'package:hirfa_frontend/Cooperative/ServicesCooperatives/auth_cooperative.dart';
 
-class Logindesigner extends StatefulWidget {
-  const Logindesigner({super.key});
+class RegisterCooperative extends StatefulWidget {
+  const RegisterCooperative({super.key});
 
   @override
-  State<Logindesigner> createState() => _LogindesignerState();
+  State<RegisterCooperative> createState() => _RegisterCooperativeState();
 }
 
-class _LogindesignerState extends State<Logindesigner> {
+class _RegisterCooperativeState extends State<RegisterCooperative> {
+  String? brand_name;
+  String? description;
+  String? address;
   String? email;
   String? password;
-  // Controllers pour récupérer le texte des champs
+  final TextEditingController _brandController = TextEditingController();
+  final TextEditingController _descriptionController = TextEditingController();
+  final TextEditingController _addressController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-
   Future<void> _handleLogin() async {
+    brand_name = _brandController.text.trim();
+    description = _descriptionController.text.trim();
+    address = _addressController.text.trim();
     email = _emailController.text.trim();
     password = _passwordController.text.trim();
 
+    if (brand_name == null || brand_name!.isEmpty) {
+      _showError("brand Name is required");
+      return;
+    }
+    if (description == null || description!.isEmpty) {
+      _showError("description  is required");
+      return;
+    }
+    if (address == null || address!.isEmpty) {
+      _showError("address  is required");
+      return;
+    }
     if (email == null || email!.isEmpty) {
       _showError("Email is required");
       return;
@@ -37,23 +55,25 @@ class _LogindesignerState extends State<Logindesigner> {
       _showError("Password must be at least 7 characters");
     }
 
-    print("✅ Email: $email | Password: $password");
-    // appel api
-    final errorMessage = await AuthDesigner.loginDesigner(
+    debugPrint(
+      "✅ brand Name: $brand_name description  : $description  address : $address Email: $email | Password: $password",
+    );
+    //appel api
+    final errorMessage = await AuthCooperative.registerCooperative(
+      brand_name: brand_name!,
+      description: description!,
+      address: address!,
       email: email!,
       password: password!,
     );
     if (errorMessage == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text("✅ Connexion réussie."),
+          content: Text("✅ Inscription réussie. Vérifie ton email."),
           backgroundColor: Colors.green,
         ),
       );
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => Homedesigner()),
-      );
+      // Optionnel : rediriger vers une page de confirmation
     } else {
       _showError(errorMessage);
     }
@@ -62,6 +82,37 @@ class _LogindesignerState extends State<Logindesigner> {
   void _showError(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text(message), backgroundColor: Colors.red),
+    );
+  }
+
+  Widget InputText({
+    required String hint,
+    required IconData icon,
+    required TextEditingController controller,
+  }) {
+    return TextField(
+      controller: controller,
+      textAlign: TextAlign.center,
+      decoration: InputDecoration(
+        hintText: hint,
+        hintStyle: const TextStyle(
+          color: Color(0xFFA0A0A0), // Couleur du texte hint
+          fontSize: 14,
+          fontFamily: 'Poppins',
+          fontWeight: FontWeight.bold,
+        ),
+        prefixIcon: Icon(icon, color: Color(0xFF555555)),
+        filled: true,
+        fillColor: const Color(0xFFFFFFFF), // Fond du champ
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide.none,
+        ),
+      ),
+      style: const TextStyle(
+        color: Color(0xFF555555), // Couleur du texte saisi
+        fontSize: 16,
+      ),
     );
   }
 
@@ -76,10 +127,10 @@ class _LogindesignerState extends State<Logindesigner> {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              const SizedBox(height: 90),
+              const SizedBox(height: 50),
               const SizedBox(height: 8),
               const Text(
-                'Sign In',
+                'Sign Up',
                 style: TextStyle(
                   fontSize: 40,
                   fontWeight: FontWeight.bold,
@@ -89,32 +140,31 @@ class _LogindesignerState extends State<Logindesigner> {
               ),
               const SizedBox(height: 50),
               const SizedBox(height: 8),
-              TextField(
+              InputText(
+                hint: "Cooperative Brand Name",
+                icon: Icons.business,
+                controller: _brandController,
+              ),
+              const SizedBox(height: 10),
+              const SizedBox(height: 8),
+              InputText(
+                hint: "Cooperative Description",
+                icon: Icons.description,
+                controller: _descriptionController,
+              ),
+              const SizedBox(height: 10),
+              const SizedBox(height: 8),
+              InputText(
+                hint: "Cooperative Address",
+                icon: Icons.location_on,
+                controller: _addressController,
+              ),
+              const SizedBox(height: 10),
+              const SizedBox(height: 8),
+              InputText(
+                hint: "Cooperative Email",
+                icon: Icons.email,
                 controller: _emailController,
-                textAlign: TextAlign.center,
-                decoration: InputDecoration(
-                  hintText: 'Enter your Email',
-                  hintStyle: const TextStyle(
-                    color: Color(0xFFA0A0A0), // Couleur du texte hint
-                    fontSize: 14,
-                    fontFamily: 'Poppins',
-                    fontWeight: FontWeight.bold,
-                  ),
-                  prefixIcon: const Icon(
-                    Icons.email,
-                    color: Color(0xFF555555), // Couleur de l’icône
-                  ),
-                  filled: true,
-                  fillColor: const Color(0xFFFFFFFF), // Fond du champ
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide.none,
-                  ),
-                ),
-                style: const TextStyle(
-                  color: Color(0xFF555555), // Couleur du texte saisi
-                  fontSize: 16,
-                ),
               ),
               const SizedBox(height: 10),
               const SizedBox(height: 8),
@@ -123,18 +173,14 @@ class _LogindesignerState extends State<Logindesigner> {
                 textAlign: TextAlign.center,
                 obscureText: true,
                 decoration: InputDecoration(
-                  hintText: 'Enter your password',
+                  hintText: "Cooperative Password",
                   hintStyle: const TextStyle(
                     color: Color(0xFFA0A0A0), // Couleur du texte hint
                     fontSize: 14,
-                    fontWeight: FontWeight.bold,
                     fontFamily: 'Poppins',
+                    fontWeight: FontWeight.bold,
                   ),
-                  prefixIcon: const Icon(
-                    Icons.lock,
-                    color: Color(0xFF555555), // Couleur de l’icône
-                  ),
-
+                  prefixIcon: Icon(Icons.lock, color: Color(0xFF555555)),
                   filled: true,
                   fillColor: const Color(0xFFFFFFFF), // Fond du champ
                   border: OutlineInputBorder(
@@ -161,7 +207,7 @@ class _LogindesignerState extends State<Logindesigner> {
                   ),
                 ),
                 child: const Text(
-                  'Sign In',
+                  'Sign Up',
                   style: TextStyle(
                     color: Color(0xFF000000),
                     fontSize: 16,
@@ -170,29 +216,14 @@ class _LogindesignerState extends State<Logindesigner> {
                   ),
                 ),
               ),
-              const SizedBox(height: 18),
-              const SizedBox(height: 8),
-              TextButton(
-                onPressed: () {
-                  // Action d'inscription ici
-                },
-                child: const Text(
-                  'Forgot your Password ?',
-                  style: TextStyle(
-                    color: Color(0xFFA0A0A0),
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    fontFamily: 'Poppins',
-                  ),
-                ),
-              ),
-              const SizedBox(height: 150),
+
+              const SizedBox(height: 70),
               const SizedBox(height: 8),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   const Text(
-                    "Don't have a Hirfa account ?",
+                    "Do you have already an account ? ",
                     style: TextStyle(
                       color: Color(0xFFA0A0A0),
                       fontWeight: FontWeight.bold,
@@ -204,12 +235,12 @@ class _LogindesignerState extends State<Logindesigner> {
                       Navigator.pushReplacement(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => Registerdesigner(),
+                          builder: (context) => Logincooperative(),
                         ),
                       );
                     },
                     child: const Text(
-                      'Sign Up',
+                      'Sign In',
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
                         color: Color(0xFF000000),

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 class PageIndicator extends StatelessWidget {
   final int current;
-  const PageIndicator({Key? key, required this.current}) : super(key: key);
+  const PageIndicator({super.key, required this.current});
 
   @override
   Widget build(BuildContext context) {

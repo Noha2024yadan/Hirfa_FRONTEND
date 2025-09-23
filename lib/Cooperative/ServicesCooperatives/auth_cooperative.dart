@@ -66,4 +66,45 @@ class AuthCooperative {
       return data['message'] ?? "Erreur de connexion.";
     }
   }
+
+  // Forgot Password for Cooperative
+  static Future<String?> forgotPasswordCooperative({
+    required String email,
+  }) async {
+    final url = Uri.parse('$baseUrl/auth/cooperative/forgot-password');
+
+    final response = await http.post(
+      url,
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({'email': email}),
+    );
+
+    if (response.statusCode == 200) {
+      return null; // success
+    } else {
+      final data = jsonDecode(response.body);
+      return data['message'] ?? 'Unknown error occurred';
+    }
+  }
+
+  // Reset Password for Cooperative
+  static Future<String?> resetPasswordCooperative({
+    required String token,
+    required String newPassword,
+  }) async {
+    final url = Uri.parse('$baseUrl/auth/cooperative/reset-password');
+
+    final response = await http.post(
+      url,
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({'token': token, 'password': newPassword}),
+    );
+
+    if (response.statusCode == 200) {
+      return null; // success
+    } else {
+      final data = jsonDecode(response.body);
+      return data['message'] ?? 'Unknown error occurred';
+    }
+  }
 }

@@ -10,13 +10,13 @@ class PageContent extends StatefulWidget {
   final bool showOnlyText;
 
   const PageContent({
-    Key? key,
+    super.key,
     required this.index,
     required this.onLanguageSelected,
     this.selectedLanguage,
     this.showOnlyVisual = false,
     this.showOnlyText = false,
-  }) : super(key: key);
+  });
 
   @override
   State<PageContent> createState() => _PageContentState();
@@ -230,7 +230,10 @@ class _PageContentState extends State<PageContent> {
                     value: _selectedLanguage,
                     hint: const Text(
                       'Choose language',
-                      style: TextStyle(color: Color(0xC15C4B4B)),
+                      style: TextStyle(
+                        color: Color(0xC15C4B4B),
+                        fontFamily: 'Poppins',
+                      ),
                     ),
                     isExpanded: true,
                     underline: const SizedBox(),
@@ -315,7 +318,10 @@ class _PageContentState extends State<PageContent> {
                   value: _selectedLanguage,
                   hint: const Text(
                     'Choose language',
-                    style: TextStyle(color: Color(0xC15C4B4B)),
+                    style: TextStyle(
+                      color: Color(0xC15C4B4B),
+                      fontFamily: 'Poppins',
+                    ),
                   ),
                   isExpanded: true,
                   underline: const SizedBox(),
@@ -328,6 +334,7 @@ class _PageContentState extends State<PageContent> {
                   style: const TextStyle(
                     fontSize: 16,
                     color: Color(0xFF1a1a1a),
+                    fontFamily: 'Poppins',
                   ),
                   items:
                       _languages.entries.map((entry) {
@@ -340,6 +347,7 @@ class _PageContentState extends State<PageContent> {
                               style: const TextStyle(
                                 fontSize: 16,
                                 color: Color(0xFF1a1a1a),
+                                fontFamily: 'Poppins',
                               ),
                             ),
                           ),

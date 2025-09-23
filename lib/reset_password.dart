@@ -1,9 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:hirfa_frontend/Clients/ServicesClients/auth_client.dart';
+import 'package:hirfa_frontend/Cooperative/ServicesCooperatives/auth_cooperative.dart';
+import 'package:hirfa_frontend/Designers/ServicesDesigners/auth_designer.dart';
 
 class ResetPasswordScreen extends StatefulWidget {
   final String email;
+  final String resetToken;
 
-  const ResetPasswordScreen({super.key, required this.email});
+  const ResetPasswordScreen({
+    super.key,
+    required this.email,
+    required this.resetToken,
+  });
 
   @override
   State<ResetPasswordScreen> createState() => _ResetPasswordScreenState();
@@ -17,6 +26,20 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
   bool _isLoading = false;
   bool _obscureNewPassword = true;
   bool _obscureConfirmPassword = true;
+  String? _userRole;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserRole();
+  }
+
+  Future<void> _loadUserRole() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _userRole = prefs.getString('user_role');
+    });
+  }
 
   @override
   void dispose() {
@@ -321,75 +344,117 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
   }
 
   void _resetPassword() async {
+    if (_userRole == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('User role not found. Please select your role again.'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
     setState(() {
       _isLoading = true;
     });
 
-    // Simulate API call
-    await Future.delayed(const Duration(seconds: 2));
+    String? errorMessage;
+
+    try {
+      switch (_userRole) {
+        case 'client':
+          errorMessage = await AuthClient.resetPasswordClient(
+            token: widget.resetToken,
+            newPassword: _newPasswordController.text.trim(),
+          );
+          break;
+        case 'cooperative':
+          errorMessage = await AuthCooperative.resetPasswordCooperative(
+            token: widget.resetToken,
+            newPassword: _newPasswordController.text.trim(),
+          );
+          break;
+        case 'designer':
+          errorMessage = await AuthDesigner.resetPasswordDesigner(
+            token: widget.resetToken,
+            newPassword: _newPasswordController.text.trim(),
+          );
+          break;
+        default:
+          errorMessage = 'Invalid user role';
+      }
+    } catch (e) {
+      errorMessage = 'Network error occurred';
+    }
 
     setState(() {
       _isLoading = false;
     });
 
-    // Show success dialog
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (BuildContext context) {
-        return Dialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
-          ),
-          child: Padding(
-            padding: const EdgeInsets.all(24.0),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(
-                  Icons.check_circle,
-                  size: 64,
-                  color: const Color(0xFF2d6723),
-                ),
-                const SizedBox(height: 16),
-                const Text(
-                  'Password Reset',
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 16),
-                const Text(
-                  'Your password has been successfully reset.',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(fontSize: 16),
-                ),
-                const SizedBox(height: 24),
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: () {
-                      Navigator.popUntil(context, (route) => route.isFirst);
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF2d6723),
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
+    if (errorMessage == null) {
+      // Show success dialog
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (BuildContext context) {
+          return Dialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(24.0),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    Icons.check_circle,
+                    size: 64,
+                    color: const Color(0xFF2d6723),
+                  ),
+                  const SizedBox(height: 16),
+                  const Text(
+                    'Password Reset',
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 16),
+                  const Text(
+                    'Your password has been successfully reset.',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(fontSize: 16),
+                  ),
+                  const SizedBox(height: 24),
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: () {
+                        Navigator.popUntil(context, (route) => route.isFirst);
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF2d6723),
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
                       ),
-                    ),
-                    child: const Text(
-                      'Back to Login',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.w600,
+                      child: const Text(
+                        'Back to Login',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-        );
-      },
-    );
+          );
+        },
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(errorMessage), backgroundColor: Colors.red),
+      );
+    }
   }
 }

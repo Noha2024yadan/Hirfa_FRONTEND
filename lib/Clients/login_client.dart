@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:hirfa_frontend/Clients/HomeClient.dart';
+import 'package:hirfa_frontend/Clients/home_client.dart';
 import 'package:hirfa_frontend/Clients/ServicesClients/auth_client.dart';
-import 'package:hirfa_frontend/Clients/registerclient.dart';
+import 'package:hirfa_frontend/Clients/register_client.dart';
+import 'package:hirfa_frontend/forgot_password.dart';
 
 class Loginclient extends StatefulWidget {
   const Loginclient({super.key});
@@ -37,7 +38,7 @@ class _LoginclientState extends State<Loginclient> {
       _showError("Password must be at least 7 characters");
     }
 
-    print("✅ Email: $email | Password: $password");
+    debugPrint("✅ Email: $email | Password: $password");
 
     // appel api
     final errorMessage = await AuthClient.loginClient(
@@ -176,7 +177,12 @@ class _LoginclientState extends State<Loginclient> {
                 const SizedBox(height: 8),
                 TextButton(
                   onPressed: () {
-                    // Action d'inscription ici
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => ForgotPasswordScreen(),
+                      ),
+                    );
                   },
                   child: const Text(
                     'Forgot your Password ?',

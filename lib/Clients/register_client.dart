@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:hirfa_frontend/Clients/Loginclient.dart';
+import 'package:hirfa_frontend/Clients/login_client.dart';
 import 'package:hirfa_frontend/Clients/ServicesClients/auth_client.dart';
 
 class Registerclient extends StatefulWidget {
@@ -54,7 +54,7 @@ class _RegisterclientState extends State<Registerclient> {
       _showError("Password must be at least 7 characters");
     }
 
-    print(
+    debugPrint(
       "✅ First Name: $first_name last Name : $last_name address: $address Email: $email | Password: $password",
     );
     //appel api
@@ -84,7 +84,6 @@ class _RegisterclientState extends State<Registerclient> {
     );
   }
 
-  @override
   Widget InputText({
     required String hint,
     required IconData icon,
@@ -116,6 +115,7 @@ class _RegisterclientState extends State<Registerclient> {
     );
   }
 
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFFDFBF7),

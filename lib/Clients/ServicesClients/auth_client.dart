@@ -7,7 +7,7 @@ class AuthClient {
       'http://ton-backend.com/api/client/auth'; // à adapter
   static final FlutterSecureStorage _storage = FlutterSecureStorage();
 
-  //Register pour designer
+  //Register pour client
   static Future<String?> registerClient({
     required String firstName,
     required String lastName,
@@ -37,7 +37,7 @@ class AuthClient {
     }
   }
 
-  //Login for designer
+  //Login for client
   static Future<String?> loginClient({
     required String email,
     required String password,
@@ -64,6 +64,45 @@ class AuthClient {
       final data = jsonDecode(response.body);
       // ici si backend envoyé "message": "Veuillez confirmer votre email avant de vous connecter." ce message sera affiché
       return data['message'] ?? "Erreur de connexion.";
+    }
+  }
+
+  // Forgot Password for Client
+  static Future<String?> forgotPasswordClient({required String email}) async {
+    final url = Uri.parse('$baseUrl/auth/client/forgot-password');
+
+    final response = await http.post(
+      url,
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({'email': email}),
+    );
+
+    if (response.statusCode == 200) {
+      return null; // success
+    } else {
+      final data = jsonDecode(response.body);
+      return data['message'] ?? 'Unknown error occurred';
+    }
+  }
+
+  // Reset Password for Client
+  static Future<String?> resetPasswordClient({
+    required String token,
+    required String newPassword,
+  }) async {
+    final url = Uri.parse('$baseUrl/auth/client/reset-password');
+
+    final response = await http.post(
+      url,
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({'token': token, 'password': newPassword}),
+    );
+
+    if (response.statusCode == 200) {
+      return null; // success
+    } else {
+      final data = jsonDecode(response.body);
+      return data['message'] ?? 'Unknown error occurred';
     }
   }
 }
