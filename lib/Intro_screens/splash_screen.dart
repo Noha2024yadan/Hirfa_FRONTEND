@@ -20,18 +20,19 @@ class _SplashScreenState extends State<SplashScreen> {
 
     final prefs = await SharedPreferences.getInstance();
     final introSeen = prefs.getBool('intro_seen') ?? false;
-    final roleSet = prefs.containsKey('user_role');
+    // final roleSet = prefs.containsKey('user_role');
 
     if (!introSeen) {
       // First time - show intro screens (which start with language selection)
-      if (mounted) Navigator.pushReplacementNamed(context, '/intro');
-    } else if (!roleSet) {
-      // Intro seen but role not set (after logout)
-      if (mounted) Navigator.pushReplacementNamed(context, '/role');
-    } else {
-      // Everything is set, go to home
-      if (mounted) Navigator.pushReplacementNamed(context, '/home');
+      if (!mounted) return;
+      Navigator.pushReplacementNamed(context, '/intro');
+      return;
     }
+
+    // Intro already seen → Always show role selection
+    // The role screen itself can read the stored role and pre-select it.
+    if (!mounted) return;
+    Navigator.pushReplacementNamed(context, '/role');
   }
 
   @override

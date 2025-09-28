@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:hirfa_frontend/Cooperative/home_cooperative.dart';
+import 'package:hirfa_frontend/Cooperative/gestion_cooperative.dart';
 import 'package:hirfa_frontend/Cooperative/ServicesCooperatives/auth_cooperative.dart';
 import 'package:hirfa_frontend/forgot_password.dart';
 import 'register_cooperative.dart';
@@ -54,7 +54,7 @@ class _LogincooperativeState extends State<Logincooperative> {
       );
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => Homecooperative()),
+        MaterialPageRoute(builder: (context) => GestionCooperative()),
       );
     } else {
       _showError(errorMessage);
@@ -158,7 +158,7 @@ class _LogincooperativeState extends State<Logincooperative> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => const Homecooperative(),
+                        builder: (context) => const GestionCooperative(),
                       ),
                     );
                   },

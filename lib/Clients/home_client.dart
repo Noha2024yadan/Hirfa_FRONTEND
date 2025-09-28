@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:hirfa_frontend/Clients/view_cooperative_profile.dart';
 import 'package:hirfa_frontend/Widgets/bottom_navigation.dart';
 
 class HomeClient extends StatefulWidget {
@@ -65,6 +66,27 @@ class _HomeClientState extends State<HomeClient> {
               navigateToProfile(context);
             },
             child: const Text('Go to Profile'),
+          ),
+          SizedBox(height: 8),
+          ElevatedButton(
+            onPressed: () {
+              try {
+                final cooperativeId =
+                    1; // ou récupérer depuis vos données avec product['cooperative_id]
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder:
+                        (context) => ViewCooperativeProfile(
+                          cooperativeId: cooperativeId,
+                        ),
+                  ),
+                );
+              } catch (e) {
+                print('Error navigating to cooperative profile: $e');
+              }
+            },
+            child: const Text('view cooperative'),
           ),
         ],
       ),

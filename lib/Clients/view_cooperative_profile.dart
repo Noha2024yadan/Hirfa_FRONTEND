@@ -1,15 +1,17 @@
 import 'package:flutter/material.dart';
-import 'package:hirfa_frontend/Cooperative/ServicesCooperatives/crud_produit.dart';
-import 'package:hirfa_frontend/Cooperative/update_product.dart';
+import 'package:hirfa_frontend/Clients/ServicesClients/cooperative_details.dart';
 
-class Homecooperative extends StatefulWidget {
-  const Homecooperative({super.key});
+class ViewCooperativeProfile extends StatefulWidget {
+  const ViewCooperativeProfile({super.key, required this.cooperativeId});
+
+  final int cooperativeId;
 
   @override
-  State<Homecooperative> createState() => _HomecooperativeState();
+  State<ViewCooperativeProfile> createState() => _ViewCooperativeProfileState();
 }
 
-class _HomecooperativeState extends State<Homecooperative> {
+class _ViewCooperativeProfileState extends State<ViewCooperativeProfile> {
+  Map<String, dynamic>? _cooperativeInfo;
   List<Map<String, dynamic>> _products = [];
   bool _isLoading = true;
   bool _isError = false;
@@ -17,126 +19,34 @@ class _HomecooperativeState extends State<Homecooperative> {
   @override
   void initState() {
     super.initState();
-    _loadProducts();
+    _loadCooperativeData();
   }
 
-  Future<void> _loadProducts() async {
+  Future<void> _loadCooperativeData() async {
     try {
       setState(() {
         _isLoading = true;
         _isError = false;
       });
 
-      final products = await CrudProduit.getProductCooperative();
+      final cooperativeInfo = await CooperativeDetails.getCooperativeInfo(
+        widget.cooperativeId.toString(),
+      );
+      final products = await CooperativeDetails.getProductsByCooperativeId(
+        widget.cooperativeId.toString(),
+      );
+
       setState(() {
+        _cooperativeInfo = cooperativeInfo;
         _products = products;
         _isLoading = false;
       });
     } catch (e) {
       setState(() {
-        _isLoading = false;
         _isError = true;
+        _isLoading = false;
       });
     }
-  }
-
-  void _deleteProduct(int index) async {
-    print("🟢 Delete triggered for index $index");
-
-    final product = _products[index];
-    print("🟢 Product ID: ${product['id']}");
-
-    bool? confirm = await showDialog(
-      context: context,
-      builder:
-          (context) => AlertDialog(
-            title: Text(
-              'Delete Product',
-              style: TextStyle(
-                fontFamily: 'Poppins',
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            content: Text(
-              'Are you sure you want to delete "${product['nom']}"?',
-              style: TextStyle(fontFamily: 'Poppins'),
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context, false),
-                child: Text(
-                  'Cancel',
-                  style: TextStyle(
-                    fontFamily: 'Poppins',
-                    color: Color(0xFF555555),
-                  ),
-                ),
-              ),
-              TextButton(
-                onPressed: () => Navigator.pop(context, true),
-                child: Text(
-                  'Delete',
-                  style: TextStyle(
-                    fontFamily: 'Poppins',
-                    color: Colors.red,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-            ],
-          ),
-    );
-    print("🟢 Confirmation result: $confirm");
-
-    if (confirm == true) {
-      final result = await CrudProduit.deleteCooperativeProduct(
-        product['id'].toString(),
-      );
-      print("🟢 Delete result: $result");
-
-      if (result == null) {
-        setState(() {
-          _products.removeAt(index);
-        });
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text("✅ Product deleted successfully."),
-            backgroundColor: Colors.green,
-          ),
-        );
-      } else {
-        // Error
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text("❌ Error: $result"),
-            backgroundColor: Colors.red,
-          ),
-        );
-      }
-    }
-  }
-
-  void _editProduct(int index) {
-    final product = _products[index];
-
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => UpdateProduct(product: product)),
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body:
-          _isLoading
-              ? _buildLoadingState()
-              : _isError
-              ? _buildErrorState()
-              : _products.isEmpty
-              ? _buildEmptyState()
-              : _buildProductsList(),
-    );
   }
 
   Widget _buildLoadingState() {
@@ -145,11 +55,11 @@ class _HomecooperativeState extends State<Homecooperative> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           CircularProgressIndicator(color: Color(0xFF2D6723)),
-          SizedBox(height: 16),
+          SizedBox(height: 20),
           Text(
-            'Loading your products...',
+            'Loading cooperative...',
             style: TextStyle(
-              color: Color(0xFF555555),
+              color: Color(0xFF666666),
               fontSize: 16,
               fontFamily: 'Poppins',
             ),
@@ -164,20 +74,20 @@ class _HomecooperativeState extends State<Homecooperative> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.error_outline, size: 64, color: Colors.red),
+          Icon(Icons.error_outline, size: 60, color: Colors.red),
           SizedBox(height: 16),
           Text(
-            'Failed to load products',
+            'Failed to load',
             style: TextStyle(
               color: Color(0xFF555555),
               fontSize: 18,
-              fontWeight: FontWeight.bold,
+              fontWeight: FontWeight.w600,
               fontFamily: 'Poppins',
             ),
           ),
           SizedBox(height: 8),
           Text(
-            'Please check your connection and try again',
+            'Please try again',
             style: TextStyle(
               color: Color(0xFF777777),
               fontSize: 14,
@@ -186,50 +96,121 @@ class _HomecooperativeState extends State<Homecooperative> {
           ),
           SizedBox(height: 20),
           ElevatedButton(
-            onPressed: _loadProducts,
+            onPressed: _loadCooperativeData,
             style: ElevatedButton.styleFrom(
               backgroundColor: Color(0xFF2D6723),
               foregroundColor: Colors.white,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
               ),
+              padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
             ),
-            child: Text(
-              'Retry',
-              style: TextStyle(
-                fontFamily: 'Poppins',
-                fontWeight: FontWeight.w500,
-              ),
-            ),
+            child: Text('Retry'),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildEmptyState() {
-    return Center(
+  Widget _buildCooperativeHeader() {
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 24, vertical: 32),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.only(
+          bottomLeft: Radius.circular(30),
+          bottomRight: Radius.circular(30),
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 20,
+            offset: Offset(0, 10),
+          ),
+        ],
+      ),
       child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.inventory_2_outlined, size: 80, color: Color(0xFFD5B694)),
-          SizedBox(height: 16),
-          Text(
-            'No Products Yet',
-            style: TextStyle(
-              color: Color(0xFF555555),
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-              fontFamily: 'Poppins',
+          // Avatar circulaire
+          Container(
+            width: 100,
+            height: 100,
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [Color(0xFF2D6723), Color(0xFF3A7E2D)],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+              shape: BoxShape.circle,
+              boxShadow: [
+                BoxShadow(
+                  color: Color(0xFF2D6723).withOpacity(0.3),
+                  blurRadius: 15,
+                  offset: Offset(0, 5),
+                ),
+              ],
+            ),
+            child: Icon(
+              Icons.storefront_rounded,
+              color: Colors.white,
+              size: 40,
             ),
           ),
-          SizedBox(height: 8),
+          SizedBox(height: 20),
+
+          // Nom de la coopérative
           Text(
-            'Start by adding your first product',
+            _cooperativeInfo?['brand_name'] ?? 'Cooperative',
             style: TextStyle(
-              color: Color(0xFF777777),
-              fontSize: 14,
+              color: Color(0xFF1A1A1A),
+              fontSize: 24,
+              fontWeight: FontWeight.w700,
               fontFamily: 'Poppins',
+            ),
+            textAlign: TextAlign.center,
+          ),
+          SizedBox(height: 12),
+
+          // Description
+          Text(
+            _cooperativeInfo?['description'] ?? 'No description available',
+            style: TextStyle(
+              color: Color(0xFF666666),
+              fontSize: 15,
+              height: 1.4,
+              fontFamily: 'Poppins',
+            ),
+            textAlign: TextAlign.center,
+          ),
+          SizedBox(height: 24),
+
+          // Informations de contact
+          Container(
+            padding: EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              color: Color(0xFFF8F9FA),
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: Column(
+              children: [
+                _buildContactItem(
+                  Icons.location_on_rounded,
+                  'Address',
+                  _cooperativeInfo?['address'] ?? 'N/A',
+                ),
+                SizedBox(height: 16),
+                _buildContactItem(
+                  Icons.email_rounded,
+                  'Email',
+                  _cooperativeInfo?['email'] ?? 'N/A',
+                ),
+                SizedBox(height: 16),
+                _buildContactItem(
+                  Icons.phone_rounded,
+                  'Phone',
+                  _cooperativeInfo?['phone'] ?? 'N/A',
+                ),
+              ],
             ),
           ),
         ],
@@ -237,22 +218,48 @@ class _HomecooperativeState extends State<Homecooperative> {
     );
   }
 
-  Widget _buildProductsList() {
-    return RefreshIndicator(
-      onRefresh: _loadProducts,
-      color: Color(0xFF2D6723),
-      child: ListView.builder(
-        padding: EdgeInsets.all(16),
-        itemCount: _products.length,
-        itemBuilder: (context, index) {
-          final product = _products[index];
-          return _buildProductCard(product, index);
-        },
-      ),
+  Widget _buildContactItem(IconData icon, String title, String value) {
+    return Row(
+      children: [
+        Container(
+          padding: EdgeInsets.all(10),
+          decoration: BoxDecoration(
+            color: Color(0xFF2D6723).withOpacity(0.1),
+            shape: BoxShape.circle,
+          ),
+          child: Icon(icon, color: Color(0xFF2D6723), size: 20),
+        ),
+        SizedBox(width: 12),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                title,
+                style: TextStyle(
+                  color: Color(0xFF666666),
+                  fontSize: 12,
+                  fontFamily: 'Poppins',
+                ),
+              ),
+              SizedBox(height: 2),
+              Text(
+                value,
+                style: TextStyle(
+                  color: Color(0xFF1A1A1A),
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                  fontFamily: 'Poppins',
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 
-  Widget _buildProductCard(Map<String, dynamic> product, int index) {
+  Widget _buildProductCard(Map<String, dynamic> product) {
     return Container(
       margin: EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
@@ -390,7 +397,7 @@ class _HomecooperativeState extends State<Homecooperative> {
             ),
           ),
 
-          // Action Buttons
+          // Action Buttons avec icône Add to Cart
           Container(
             padding: EdgeInsets.all(12),
             decoration: BoxDecoration(
@@ -402,12 +409,15 @@ class _HomecooperativeState extends State<Homecooperative> {
             ),
             child: Row(
               children: [
+                // Bouton Add to Cart avec icône
                 Expanded(
                   child: ElevatedButton.icon(
-                    onPressed: () => _editProduct(index),
-                    icon: Icon(Icons.edit, size: 18),
+                    onPressed: () {
+                      // Add to cart functionality
+                    },
+                    icon: Icon(Icons.shopping_cart_rounded, size: 18),
                     label: Text(
-                      'Edit',
+                      'Add to Cart',
                       style: TextStyle(
                         fontFamily: 'Poppins',
                         fontWeight: FontWeight.w500,
@@ -424,31 +434,6 @@ class _HomecooperativeState extends State<Homecooperative> {
                   ),
                 ),
                 SizedBox(width: 8),
-                Expanded(
-                  child: ElevatedButton.icon(
-                    onPressed: () => _deleteProduct(index),
-                    icon: Icon(Icons.delete_outline, size: 18),
-                    label: Text(
-                      'Delete',
-                      style: TextStyle(
-                        fontFamily: 'Poppins',
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.white,
-                      foregroundColor: Colors.red,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
-                        side: BorderSide(
-                          color: Colors.red, // border color
-                          width: 1, // border thickness
-                        ),
-                      ),
-                      padding: EdgeInsets.symmetric(vertical: 12),
-                    ),
-                  ),
-                ),
               ],
             ),
           ),
@@ -496,5 +481,101 @@ class _HomecooperativeState extends State<Homecooperative> {
       default:
         return Color(0xFF555555);
     }
+  }
+
+  Widget _buildProductsSection() {
+    if (_products.isEmpty) {
+      return Padding(
+        padding: EdgeInsets.all(20),
+        child: Column(
+          children: [
+            Icon(
+              Icons.inventory_2_outlined,
+              size: 60,
+              color: Color(0xFFD5B694),
+            ),
+            SizedBox(height: 16),
+            Text(
+              'No Products Available',
+              style: TextStyle(
+                color: Color(0xFF555555),
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                fontFamily: 'Poppins',
+              ),
+            ),
+            SizedBox(height: 8),
+            Text(
+              'This cooperative has no products yet',
+              style: TextStyle(
+                color: Color(0xFF777777),
+                fontSize: 14,
+                fontFamily: 'Poppins',
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    return Padding(
+      padding: EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Products (${_products.length})',
+            style: TextStyle(
+              color: Color(0xFF1A1A1A),
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              fontFamily: 'Poppins',
+            ),
+          ),
+          SizedBox(height: 16),
+          ..._products.map((product) => _buildProductCard(product)).toList(),
+        ],
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Color(0xFFF8F9FA),
+      appBar: AppBar(
+        elevation: 0,
+        backgroundColor: Colors.transparent,
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back_rounded, color: Color(0xFF2D6723)),
+          onPressed: () => Navigator.pop(context),
+        ),
+        title: Text(
+          'Cooperative',
+          style: TextStyle(
+            color: Color(0xFF1A1A1A),
+            fontSize: 18,
+            fontWeight: FontWeight.w600,
+            fontFamily: 'Poppins',
+          ),
+        ),
+        centerTitle: true,
+      ),
+      body:
+          _isLoading
+              ? _buildLoadingState()
+              : _isError
+              ? _buildErrorState()
+              : RefreshIndicator(
+                onRefresh: _loadCooperativeData,
+                color: Color(0xFF2D6723),
+                child: ListView(
+                  children: [
+                    _buildCooperativeHeader(),
+                    _buildProductsSection(),
+                  ],
+                ),
+              ),
+    );
   }
 }

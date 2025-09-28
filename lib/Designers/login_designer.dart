@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:hirfa_frontend/Designers/gestion_designer.dart';
+import 'package:hirfa_frontend/Designers/home_designer.dart';
 import 'package:hirfa_frontend/Designers/register_designer.dart';
 import 'package:hirfa_frontend/Designers/ServicesDesigners/auth_designer.dart';
-import 'package:hirfa_frontend/Designers/homedesigner.dart';
 import 'package:hirfa_frontend/forgot_password.dart';
 
 class Logindesigner extends StatefulWidget {
@@ -53,7 +54,7 @@ class _LogindesignerState extends State<Logindesigner> {
       );
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => Homedesigner()),
+        MaterialPageRoute(builder: (context) => GestionDesigner()),
       );
     } else {
       _showError(errorMessage);
@@ -156,7 +157,7 @@ class _LogindesignerState extends State<Logindesigner> {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => const Homedesigner(),
+                      builder: (context) => const GestionDesigner(),
                     ),
                   );
                 },

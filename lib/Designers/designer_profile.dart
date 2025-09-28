@@ -44,11 +44,6 @@ class _DesignerProfileScreenState extends State<DesignerProfileScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Designer Profile'),
-        backgroundColor: const Color(0xFF863a3a),
-        foregroundColor: Colors.white,
-      ),
       body:
           _isLoading
               ? const Center(child: CircularProgressIndicator())
