@@ -71,7 +71,7 @@ class AuthCooperative {
   static Future<String?> forgotPasswordCooperative({
     required String email,
   }) async {
-    final url = Uri.parse('$baseUrl/auth/cooperative/forgot-password');
+    final url = Uri.parse('$baseUrl/auth/forgot-password');
 
     final response = await http.post(
       url,

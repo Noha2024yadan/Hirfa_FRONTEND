@@ -48,6 +48,7 @@ class _ClientProfileScreenState extends State<ClientProfileScreen> {
         title: const Text('Client Profile'),
         backgroundColor: const Color(0xFF863a3a),
         foregroundColor: Colors.white,
+        automaticallyImplyLeading: false,
       ),
       body:
           _isLoading

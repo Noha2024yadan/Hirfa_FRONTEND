@@ -69,7 +69,7 @@ class AuthClient {
 
   // Forgot Password for Client
   static Future<String?> forgotPasswordClient({required String email}) async {
-    final url = Uri.parse('$baseUrl/auth/client/forgot-password');
+    final url = Uri.parse('$baseUrl/auth/forgot-password');
 
     final response = await http.post(
       url,

@@ -71,7 +71,7 @@ class AuthDesigner {
 
   // Forgot Password for Designer
   static Future<String?> forgotPasswordDesigner({required String email}) async {
-    final url = Uri.parse('$baseUrl/auth/designer/forgot-password');
+    final url = Uri.parse('$baseUrl/auth/forgot-password');
 
     final response = await http.post(
       url,

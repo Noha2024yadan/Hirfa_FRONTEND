@@ -65,78 +65,84 @@ class _RoleSelectionScreenState extends State<RoleSelectionScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Padding(
-        padding: const EdgeInsets.all(20.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              _localizedTitle,
-              style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 10),
-            Text(
-              _localizedDescription,
-              textAlign: TextAlign.center,
-              style: const TextStyle(fontSize: 16, color: Colors.grey),
-            ),
-            const SizedBox(height: 40),
-            // Client Option
-            _buildRoleOption(
-              icon: FontAwesomeIcons.solidUser,
-              title: _localizedRoles!['client']!,
-              value: 'client',
-            ),
-            const SizedBox(height: 20),
-            // Cooperative Option
-            _buildRoleOption(
-              icon: FontAwesomeIcons.handshakeAngle,
-              title: _localizedRoles!['cooperative']!,
-              value: 'cooperative',
-            ),
-            const SizedBox(height: 20),
-            // Designer Option
-            _buildRoleOption(
-              icon: FontAwesomeIcons.boxOpen,
-              title: _localizedRoles!['designer']!,
-              value: 'designer',
-            ),
-            const SizedBox(height: 40),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed:
-                    _selectedRole != null
-                        ? () => _saveRoleAndContinue(_selectedRole!)
-                        : null,
-                style: ButtonStyle(
-                  backgroundColor: WidgetStateProperty.resolveWith<Color>((
-                    Set<WidgetState> states,
-                  ) {
-                    if (states.contains(WidgetState.disabled)) {
-                      return const Color(0xFFF0E8E2);
-                    }
-                    return const Color(0xFF863a3a);
-                  }),
-                  foregroundColor: WidgetStateProperty.resolveWith<Color>((
-                    Set<WidgetState> states,
-                  ) {
-                    if (states.contains(WidgetState.disabled)) {
-                      return const Color(0xC15C4B4B);
-                    }
-                    return Colors.white;
-                  }),
-                  minimumSize: WidgetStateProperty.all(const Size(0, 50)),
-                  shape: WidgetStateProperty.all(
-                    RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20),
-                    ),
+      body: Center(
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.all(20.0),
+            child: Column(
+              children: [
+                Text(
+                  _localizedTitle,
+                  style: const TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
                   ),
                 ),
-                child: const Text('Continue'),
-              ),
+                const SizedBox(height: 10),
+                Text(
+                  _localizedDescription,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(fontSize: 16, color: Colors.grey),
+                ),
+                const SizedBox(height: 40),
+                // Client Option
+                _buildRoleOption(
+                  icon: FontAwesomeIcons.solidUser,
+                  title: _localizedRoles!['client']!,
+                  value: 'client',
+                ),
+                const SizedBox(height: 20),
+                // Cooperative Option
+                _buildRoleOption(
+                  icon: FontAwesomeIcons.handshakeAngle,
+                  title: _localizedRoles!['cooperative']!,
+                  value: 'cooperative',
+                ),
+                const SizedBox(height: 20),
+                // Designer Option
+                _buildRoleOption(
+                  icon: FontAwesomeIcons.boxOpen,
+                  title: _localizedRoles!['designer']!,
+                  value: 'designer',
+                ),
+                const SizedBox(height: 40),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed:
+                        _selectedRole != null
+                            ? () => _saveRoleAndContinue(_selectedRole!)
+                            : null,
+                    style: ButtonStyle(
+                      backgroundColor: WidgetStateProperty.resolveWith<Color>((
+                        Set<WidgetState> states,
+                      ) {
+                        if (states.contains(WidgetState.disabled)) {
+                          return const Color(0xFFF0E8E2);
+                        }
+                        return const Color(0xFF863a3a);
+                      }),
+                      foregroundColor: WidgetStateProperty.resolveWith<Color>((
+                        Set<WidgetState> states,
+                      ) {
+                        if (states.contains(WidgetState.disabled)) {
+                          return const Color(0xC15C4B4B);
+                        }
+                        return Colors.white;
+                      }),
+                      minimumSize: WidgetStateProperty.all(const Size(0, 50)),
+                      shape: WidgetStateProperty.all(
+                        RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                      ),
+                    ),
+                    child: const Text('Continue'),
+                  ),
+                ),
+              ],
             ),
-          ],
+          ),
         ),
       ),
     );

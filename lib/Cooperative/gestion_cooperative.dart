@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:hirfa_frontend/Cooperative/ServicesCooperatives/profile_cooperative.dart';
-import 'package:hirfa_frontend/Cooperative/chat.dart';
 import 'package:hirfa_frontend/Cooperative/cooperative_profile.dart';
 import 'package:hirfa_frontend/Cooperative/discover_cooperative.dart';
 import 'package:hirfa_frontend/Cooperative/home_cooperative.dart';
