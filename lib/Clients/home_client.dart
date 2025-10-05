@@ -1,10 +1,12 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
+import "package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart";
 import 'package:hirfa_frontend/Clients/Models/product.dart';
+import 'package:hirfa_frontend/Clients/ServicesClients/crud_shopping.dart';
 import 'package:hirfa_frontend/Clients/ServicesClients/product_service.dart';
 import 'package:hirfa_frontend/Clients/client_profile.dart';
+import 'package:hirfa_frontend/Clients/shopping_cart.dart';
 import 'package:hirfa_frontend/Clients/product_detail_screen.dart';
 import 'package:hirfa_frontend/Widgets/bottom_navigation.dart';
 
@@ -407,150 +409,506 @@ class _HomeClientState extends State<HomeClient> {
       child: InkWell(
         onTap: () => _navigateToProductDetail(product),
         borderRadius: BorderRadius.circular(12),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+        child: Stack(
           children: [
-            if (imageUrl != null)
-              FutureBuilder<Size>(
-                future: _fetchImageSize(imageUrl),
-                builder: (context, snapshot) {
-                  if (!snapshot.hasData) {
-                    return Container(
-                      height: 150,
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFf5f5f5),
-                        borderRadius: const BorderRadius.only(
-                          topLeft: Radius.circular(12),
-                          topRight: Radius.circular(12),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                if (imageUrl != null)
+                  FutureBuilder<Size>(
+                    future: _fetchImageSize(imageUrl),
+                    builder: (context, snapshot) {
+                      if (!snapshot.hasData) {
+                        return Container(
+                          height: 150,
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFf5f5f5),
+                            borderRadius: const BorderRadius.only(
+                              topLeft: Radius.circular(12),
+                              topRight: Radius.circular(12),
+                            ),
+                          ),
+                          child: const Center(
+                            child: CircularProgressIndicator(
+                              strokeWidth: 1.5,
+                              color: Color(0xFF2d6723),
+                            ),
+                          ),
+                        );
+                      }
+                      final aspectRatio =
+                          snapshot.data!.width / snapshot.data!.height;
+                      return AspectRatio(
+                        aspectRatio: aspectRatio,
+                        child: ClipRRect(
+                          borderRadius: const BorderRadius.vertical(
+                            top: Radius.circular(12),
+                          ),
+                          child: Image.network(
+                            imageUrl,
+                            fit: BoxFit.cover,
+                            errorBuilder: (context, error, stackTrace) {
+                              return Container(
+                                color: const Color(0xFFf5f5f5),
+                                child: const Icon(
+                                  Icons.image_not_supported_rounded,
+                                  color: Color(0xFFd5b694),
+                                  size: 40,
+                                ),
+                              );
+                            },
+                          ),
                         ),
-                      ),
-                      child: const Center(
-                        child: CircularProgressIndicator(
-                          strokeWidth: 1.5,
-                          color: Color(0xFF2d6723),
-                        ),
-                      ),
-                    );
-                  }
-                  final aspectRatio =
-                      snapshot.data!.width / snapshot.data!.height;
-                  return AspectRatio(
-                    aspectRatio: aspectRatio,
-                    child: ClipRRect(
+                      );
+                    },
+                  )
+                else
+                  Container(
+                    height: 150,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFf5f5f5),
                       borderRadius: const BorderRadius.vertical(
                         top: Radius.circular(12),
                       ),
-                      child: Image.network(
-                        imageUrl,
-                        fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) {
-                          return Container(
-                            color: const Color(0xFFf5f5f5),
-                            child: const Icon(
-                              Icons.image_not_supported_rounded,
-                              color: Color(0xFFd5b694),
-                              size: 40,
-                            ),
-                          );
-                        },
+                    ),
+                    child: const Center(
+                      child: Icon(
+                        Icons.image_rounded,
+                        size: 40,
+                        color: Color(0xFFd5b694),
                       ),
                     ),
-                  );
-                },
-              )
-            else
-              Container(
-                height: 150,
-                decoration: BoxDecoration(
-                  color: const Color(0xFFf5f5f5),
-                  borderRadius: const BorderRadius.vertical(
-                    top: Radius.circular(12),
                   ),
-                ),
-                child: const Center(
-                  child: Icon(
-                    Icons.image_rounded,
-                    size: 40,
-                    color: Color(0xFFd5b694),
-                  ),
-                ),
-              ),
-            Padding(
-              padding: const EdgeInsets.all(12),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    product.nomProduit,
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 14,
-                      color: Color(0xFF1A1A1A),
-                    ),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    '${product.prix} DH',
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      color: Color(0xFF2d6723),
-                      fontSize: 16,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Row(
+                Padding(
+                  padding: const EdgeInsets.all(12),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Icon(
-                        Icons.inventory_2,
-                        size: 12,
-                        color:
-                            product.quantiteStock > 0
-                                ? const Color(0xFF2d6723)
-                                : const Color(0xFF863a3a),
-                      ),
-                      const SizedBox(width: 4),
                       Text(
-                        'Stock: ${product.quantiteStock}',
-                        style: TextStyle(
-                          fontSize: 10,
-                          color:
-                              product.quantiteStock > 0
-                                  ? const Color(0xFF2d6723)
-                                  : const Color(0xFF863a3a),
+                        product.nomProduit,
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 14,
+                          color: Color(0xFF1A1A1A),
+                        ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        '${product.prix} DH',
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFF2d6723),
+                          fontSize: 16,
                         ),
                       ),
+                      const SizedBox(height: 8),
+                      Row(
+                        children: [
+                          Icon(
+                            Icons.inventory_2,
+                            size: 12,
+                            color:
+                                product.quantiteStock > 0
+                                    ? const Color(0xFF2d6723)
+                                    : const Color(0xFF863a3a),
+                          ),
+                          const SizedBox(width: 4),
+                          Text(
+                            'Stock: ${product.quantiteStock}',
+                            style: TextStyle(
+                              fontSize: 10,
+                              color:
+                                  product.quantiteStock > 0
+                                      ? const Color(0xFF2d6723)
+                                      : const Color(0xFF863a3a),
+                            ),
+                          ),
+                        ],
+                      ),
+                      if (product.categorie.isNotEmpty) ...[
+                        const SizedBox(height: 8),
+                        // Row avec catégorie et icône panier
+                        Row(
+                          children: [
+                            // Catégorie
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 8,
+                                vertical: 4,
+                              ),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFF2d6723).withOpacity(0.1),
+                                borderRadius: BorderRadius.circular(6),
+                              ),
+                              child: Text(
+                                product.categorie,
+                                style: const TextStyle(
+                                  fontSize: 10,
+                                  color: Color(0xFF2d6723),
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ),
+                            const Spacer(),
+                            // Icône panier
+                            Container(
+                              width: 32,
+                              height: 32,
+                              decoration: BoxDecoration(
+                                color: const Color(0xFF2d6723),
+                                shape: BoxShape.circle,
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: const Color(
+                                      0xFF2d6723,
+                                    ).withOpacity(0.3),
+                                    blurRadius: 4,
+                                    offset: const Offset(0, 2),
+                                  ),
+                                ],
+                              ),
+                              child: IconButton(
+                                onPressed: () => _showAddToCartDialog(product),
+                                icon: const Icon(
+                                  Icons.shopping_cart_rounded,
+                                  size: 16,
+                                  color: Colors.white,
+                                ),
+                                padding: EdgeInsets.zero,
+                                splashRadius: 16,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
                     ],
                   ),
-                  if (product.categorie.isNotEmpty) ...[
-                    const SizedBox(height: 8),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 8,
-                        vertical: 4,
-                      ),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFF2d6723).withOpacity(0.1),
-                        borderRadius: BorderRadius.circular(6),
-                      ),
-                      child: Text(
-                        product.categorie,
-                        style: const TextStyle(
-                          fontSize: 10,
-                          color: Color(0xFF2d6723),
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
+                ),
+              ],
+            ),
+
+            // Icône de signalement en haut à droite
+            Positioned(
+              top: 8,
+              right: 8,
+              child: Container(
+                width: 32,
+                height: 32,
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.9),
+                  shape: BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.1),
+                      blurRadius: 4,
+                      offset: const Offset(0, 2),
                     ),
                   ],
-                ],
+                ),
+                child: IconButton(
+                  onPressed: () => _reportProduct(product),
+                  icon: const Icon(
+                    Icons.report_outlined,
+                    size: 16,
+                    color: Color.fromARGB(255, 245, 11, 11),
+                  ),
+                  padding: EdgeInsets.zero,
+                  splashRadius: 16,
+                ),
               ),
             ),
           ],
         ),
       ),
     );
+  }
+
+  // Méthodes pour les actions des boutons
+  // Function to show quantity dialog
+  void _showAddToCartDialog(Product product) {
+    TextEditingController quantityController = TextEditingController(text: '1');
+
+    showDialog(
+      context: context,
+      builder:
+          (context) => AlertDialog(
+            backgroundColor: Colors.white,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+            ),
+            title: const Text(
+              'Add to Cart',
+              style: TextStyle(
+                color: Color(0xFF1A1A1A),
+                fontWeight: FontWeight.bold,
+                fontFamily: 'Poppins',
+              ),
+            ),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  '${product.nomProduit}',
+                  style: const TextStyle(
+                    color: Color(0xFF555555),
+                    fontSize: 14,
+                    fontFamily: 'Poppins',
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'Price: ${product.prix} DH',
+                  style: const TextStyle(
+                    color: Color(0xFF2D6723),
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    fontFamily: 'Poppins',
+                  ),
+                ),
+                const SizedBox(height: 16),
+                TextField(
+                  controller: quantityController,
+                  keyboardType: TextInputType.number,
+                  decoration: InputDecoration(
+                    labelText: 'Quantity',
+                    labelStyle: const TextStyle(
+                      color: Color(0xFF555555),
+                      fontFamily: 'Poppins',
+                    ),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      borderSide: const BorderSide(color: Color(0xFFD5B694)),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      borderSide: const BorderSide(color: Color(0xFF2D6723)),
+                    ),
+                    contentPadding: const EdgeInsets.all(12),
+                  ),
+                  style: const TextStyle(
+                    fontSize: 14,
+                    color: Color(0xFF1A1A1A),
+                  ),
+                ),
+              ],
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                style: TextButton.styleFrom(
+                  foregroundColor: const Color(0xFF555555),
+                ),
+                child: const Text(
+                  'Cancel',
+                  style: TextStyle(
+                    fontFamily: 'Poppins',
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  final quantity =
+                      int.tryParse(quantityController.text.trim()) ?? 0;
+                  if (quantity <= 0) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Please enter a valid quantity'),
+                        backgroundColor: Color(0xFF863A3A),
+                      ),
+                    );
+                    return;
+                  }
+
+                  Navigator.pop(context);
+                  _addProductToCart(product, quantity);
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF2D6723),
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+                child: const Text(
+                  'Add to Cart',
+                  style: TextStyle(
+                    fontFamily: 'Poppins',
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+            ],
+          ),
+    );
+  }
+
+  // Function to add product to cart
+  Future<void> _addProductToCart(Product product, int quantity) async {
+    try {
+      final success = await CrudShopping.addProductToPanier(
+        productId: product.productId,
+        quantity: quantity,
+        unitPrice: product.prix,
+      );
+
+      if (success) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('$quantity x ${product.nomProduit} added to cart'),
+            backgroundColor: const Color(0xFF2D6723),
+            duration: const Duration(seconds: 2),
+          ),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Failed to add product to cart'),
+            backgroundColor: Color(0xFF863A3A),
+          ),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error: $e'),
+          backgroundColor: const Color(0xFF863A3A),
+        ),
+      );
+    }
+  }
+
+  void _reportProduct(Product product) {
+    TextEditingController reportController = TextEditingController();
+
+    showDialog(
+      context: context,
+      builder:
+          (context) => AlertDialog(
+            backgroundColor: Colors.white,
+            title: const Text(
+              'Report Product',
+              style: TextStyle(
+                color: Color(0xFF1A1A1A),
+                fontWeight: FontWeight.bold,
+                fontFamily: 'Poppins',
+              ),
+            ),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Why do you want to report "${product.nomProduit}"?',
+                  style: const TextStyle(
+                    color: Color(0xFF555555),
+                    fontSize: 14,
+                    fontFamily: 'Poppins',
+                  ),
+                ),
+                const SizedBox(height: 16),
+                TextField(
+                  controller: reportController,
+                  maxLines: 3,
+                  decoration: InputDecoration(
+                    hintText: 'Please describe the reason for reporting...',
+                    hintStyle: const TextStyle(
+                      color: Color(0xFFA0A0A0),
+                      fontSize: 12,
+                    ),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      borderSide: const BorderSide(color: Color(0xFFD5B694)),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      borderSide: const BorderSide(color: Color(0xFF2D6723)),
+                    ),
+                    contentPadding: const EdgeInsets.all(12),
+                  ),
+                  style: const TextStyle(
+                    fontSize: 14,
+                    color: Color(0xFF1A1A1A),
+                  ),
+                ),
+              ],
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text(
+                  'Cancel',
+                  style: TextStyle(
+                    color: Color(0xFF555555),
+                    fontFamily: 'Poppins',
+                  ),
+                ),
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  final reason = reportController.text.trim();
+                  if (reason.isEmpty) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Please provide a reason for reporting'),
+                        backgroundColor: Color(0xFF863A3A),
+                      ),
+                    );
+                    return;
+                  }
+
+                  // Logique de signalement avec la raison
+                  _submitReport(product, reason);
+                  Navigator.pop(context);
+
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(
+                        '"${product.nomProduit}" has been reported',
+                      ),
+                      backgroundColor: const Color(0xFF863A3A),
+                      duration: const Duration(seconds: 3),
+                    ),
+                  );
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFFFFFFFF),
+                  foregroundColor: const Color(0xFF863A3A),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+                child: const Text(
+                  'Submit Report',
+                  style: TextStyle(
+                    fontFamily: 'Poppins',
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+            ],
+          ),
+    );
+  }
+
+  // Méthode pour soumettre le signalement
+  void _submitReport(Product product, String reason) async {
+    final success = await ProductService.reportProduct(
+      productId: product.productId,
+      reason: reason,
+    );
+
+    if (!success) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Failed to send report. Please try again.'),
+          backgroundColor: Color(0xFF863A3A),
+        ),
+      );
+    }
   }
 
   Widget _buildRecommendedSection() {
@@ -838,7 +1196,7 @@ class _HomeClientState extends State<HomeClient> {
       case 1:
         return const Center(child: Text('Discover Page'));
       case 2:
-        return const Center(child: Text('Orders Page'));
+        return ShoppingCart();
       case 3:
         return ClientProfileScreen();
       default:

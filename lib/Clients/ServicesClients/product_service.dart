@@ -184,7 +184,7 @@ class ProductService {
   static List<Product> _getMockProducts() {
     return [
       Product(
-        productId: '1',
+        productId: 1,
         nomProduit: 'Savon Artisanal à l\'Argan',
         description: 'Savon bio naturel à base d\'huile d\'argan marocaine',
         prix: 29.99,
@@ -203,7 +203,7 @@ class ProductService {
         cooperativeId: 'coop1',
       ),
       Product(
-        productId: '2',
+        productId: 2,
         nomProduit: 'Huile d\'Olive Vierge',
         description: 'Huile d\'olive pressée à froid de qualité supérieure',
         prix: 89.50,
@@ -218,7 +218,7 @@ class ProductService {
         cooperativeId: 'coop2',
       ),
       Product(
-        productId: '3',
+        productId: 3,
         nomProduit: 'Tapis Berbère Traditionnel',
         description:
             'Tapis artisanal tissé à la main avec des motifs traditionnels',
@@ -234,7 +234,7 @@ class ProductService {
         cooperativeId: 'coop3',
       ),
       Product(
-        productId: '4',
+        productId: 4,
         nomProduit: 'Poterie Marocaine',
         description: 'Pot décoratif en céramique peinte à la main',
         prix: 75.00,
@@ -249,7 +249,7 @@ class ProductService {
         cooperativeId: 'coop2',
       ),
       Product(
-        productId: '5',
+        productId: 5,
         nomProduit: 'Couscous Artisanal',
         description: 'Couscous de blé dur de qualité premium',
         prix: 35.00,
@@ -264,7 +264,7 @@ class ProductService {
         cooperativeId: 'coop1',
       ),
       Product(
-        productId: '6',
+        productId: 6,
         nomProduit: 'Broderie Traditionnelle',
         description: 'Tableau brodé main avec des motifs marocains',
         prix: 120.00,
@@ -279,5 +279,27 @@ class ProductService {
         cooperativeId: 'coop2',
       ),
     ];
+  }
+
+  //Report a product
+  static Future<bool> reportProduct({
+    required int productId,
+    required String reason,
+  }) async {
+    final url = Uri.parse('$baseUrl/produit/report');
+
+    final response = await http.post(
+      url,
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({'productId': productId, 'reason': reason}),
+    );
+
+    if (response.statusCode == 200) {
+      // Tu peux aussi vérifier le contenu de la réponse ici
+      return true;
+    } else {
+      print('Erreur lors du signalement: ${response.body}');
+      return false;
+    }
   }
 }

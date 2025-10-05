@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:hirfa_frontend/Cooperative/ServicesCooperatives/designs_service.dart';
 import 'package:hirfa_frontend/Cooperative/design_detail_screen.dart';
 import 'package:hirfa_frontend/Designers/ServicesDesigners/crud_design.dart';
 
@@ -193,81 +194,252 @@ class _DiscoverCooperativeState extends State<DiscoverCooperative> {
       child: InkWell(
         onTap: () => _navigateToDesignDetail(design),
         borderRadius: BorderRadius.circular(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+        child: Stack(
           children: [
-            // Design Image
-            Expanded(
-              child: Container(
-                width: double.infinity,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
-                  color: Color(0xFFF5F5F5),
-                  image:
-                      design['images'] != null && design['images'].isNotEmpty
-                          ? DecorationImage(
-                            image: NetworkImage(design['images'][0]),
-                            fit: BoxFit.cover,
-                          )
-                          : null,
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Design Image
+                Expanded(
+                  child: Container(
+                    width: double.infinity,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.vertical(
+                        top: Radius.circular(16),
+                      ),
+                      color: Color(0xFFF5F5F5),
+                      image:
+                          design['images'] != null &&
+                                  design['images'].isNotEmpty
+                              ? DecorationImage(
+                                image: NetworkImage(design['images'][0]),
+                                fit: BoxFit.cover,
+                              )
+                              : null,
+                    ),
+                    child:
+                        design['images'] == null || design['images'].isEmpty
+                            ? Icon(
+                              Icons.design_services,
+                              color: Color(0xFFD5B694),
+                              size: 40,
+                            )
+                            : null,
+                  ),
                 ),
-                child:
-                    design['images'] == null || design['images'].isEmpty
-                        ? Icon(
-                          Icons.design_services,
-                          color: Color(0xFFD5B694),
-                          size: 40,
-                        )
-                        : null,
-              ),
+
+                // Design Info
+                Padding(
+                  padding: EdgeInsets.all(12),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        design['nom_design'] ?? 'No Name',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 14,
+                          color: Color(0xFF1A1A1A),
+                          fontFamily: 'Poppins',
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      SizedBox(height: 4),
+                      Text(
+                        '${design['prix']?.toStringAsFixed(2) ?? '0.00'} DH',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFF2D6723),
+                          fontSize: 16,
+                          fontFamily: 'Poppins',
+                        ),
+                      ),
+                      SizedBox(height: 4),
+                      Text(
+                        design['designer_name'] ?? 'Unknown Designer',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Color(0xFF666666),
+                          fontFamily: 'Poppins',
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      SizedBox(height: 8),
+                    ],
+                  ),
+                ),
+              ],
             ),
 
-            // Design Info
-            Padding(
-              padding: EdgeInsets.all(12),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    design['nom_design'] ?? 'No Name',
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 14,
-                      color: Color(0xFF1A1A1A),
-                      fontFamily: 'Poppins',
+            // Icône de signalement discrète en haut à droite
+            Positioned(
+              top: 8,
+              right: 8,
+              child: Container(
+                width: 32,
+                height: 32,
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.9),
+                  shape: BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.1),
+                      blurRadius: 4,
+                      offset: Offset(0, 2),
                     ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
+                  ],
+                ),
+                child: IconButton(
+                  onPressed:
+                      () => _reportDesign(
+                        design['design_id'],
+                        design['nom_design'],
+                      ),
+
+                  icon: Icon(
+                    Icons.report_outlined,
+                    size: 16,
+                    color: Color.fromARGB(255, 245, 11, 11), //0xFF863A3A
                   ),
-                  SizedBox(height: 4),
-                  Text(
-                    '${design['prix']?.toStringAsFixed(2) ?? '0.00'} DH',
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      color: Color(0xFF2D6723),
-                      fontSize: 16,
-                      fontFamily: 'Poppins',
-                    ),
-                  ),
-                  SizedBox(height: 4),
-                  Text(
-                    design['designer_name'] ?? 'Unknown Designer',
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: Color(0xFF666666),
-                      fontFamily: 'Poppins',
-                    ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  SizedBox(height: 8),
-                ],
+                  padding: EdgeInsets.zero,
+                  splashRadius: 16,
+                ),
               ),
             ),
           ],
         ),
       ),
     );
+  }
+
+  void _reportDesign(String designId, String designName) {
+    TextEditingController reportController = TextEditingController();
+
+    showDialog(
+      context: context,
+      builder:
+          (context) => AlertDialog(
+            backgroundColor: Colors.white,
+            title: const Text(
+              'Report Design',
+              style: TextStyle(
+                color: Color(0xFF1A1A1A),
+                fontWeight: FontWeight.bold,
+                fontFamily: 'Poppins',
+              ),
+            ),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Why do you want to report "$designName"?',
+                  style: const TextStyle(
+                    color: Color(0xFF555555),
+                    fontSize: 14,
+                    fontFamily: 'Poppins',
+                  ),
+                ),
+                const SizedBox(height: 16),
+                TextField(
+                  controller: reportController,
+                  maxLines: 3,
+                  decoration: InputDecoration(
+                    hintText: 'Please describe the reason for reporting...',
+                    hintStyle: const TextStyle(
+                      color: Color(0xFFA0A0A0),
+                      fontSize: 12,
+                    ),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      borderSide: const BorderSide(color: Color(0xFFD5B694)),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      borderSide: const BorderSide(color: Color(0xFF2D6723)),
+                    ),
+                    contentPadding: const EdgeInsets.all(12),
+                  ),
+                  style: const TextStyle(
+                    fontSize: 14,
+                    color: Color(0xFF1A1A1A),
+                  ),
+                ),
+              ],
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text(
+                  'Cancel',
+                  style: TextStyle(
+                    color: Color(0xFF555555),
+                    fontFamily: 'Poppins',
+                  ),
+                ),
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  final reason = reportController.text.trim();
+                  if (reason.isEmpty) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Please provide a reason for reporting'),
+                        backgroundColor: Color(0xFF863A3A),
+                      ),
+                    );
+                    return;
+                  }
+
+                  // Logique de signalement avec la raison
+                  _submitReport(designId, reason);
+                  Navigator.pop(context);
+
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('"$designName" has been reported'),
+                      backgroundColor: const Color(0xFF863A3A),
+                      duration: const Duration(seconds: 3),
+                    ),
+                  );
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFFFFFFFF),
+                  foregroundColor: const Color(0xFF863A3A),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+                child: const Text(
+                  'Submit Report',
+                  style: TextStyle(
+                    fontFamily: 'Poppins',
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+            ],
+          ),
+    );
+  }
+
+  // Méthode pour soumettre le signalement
+  void _submitReport(String designId, String reason) async {
+    final success = await DesignsService.reportDesign(
+      designId: designId,
+      reason: reason,
+    );
+
+    if (!success) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Failed to send report. Please try again.'),
+          backgroundColor: Color(0xFF863A3A),
+        ),
+      );
+    }
   }
 
   @override
