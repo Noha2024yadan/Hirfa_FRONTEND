@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hirfa_frontend/Clients/Models/product.dart';
+import 'package:hirfa_frontend/Clients/ServicesClients/crud_shopping.dart';
 import 'package:hirfa_frontend/Clients/ServicesClients/product_service.dart';
 import 'package:hirfa_frontend/Clients/view_cooperative_profile.dart';
 
@@ -84,6 +85,161 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
         builder: (context) => ProductDetailScreen(product: product),
       ),
     );
+  }
+
+  // Function to show quantity dialog
+  void _showAddToCartDialog(Product product) {
+    TextEditingController quantityController = TextEditingController(text: '1');
+
+    showDialog(
+      context: context,
+      builder:
+          (context) => AlertDialog(
+            backgroundColor: Colors.white,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+            ),
+            title: const Text(
+              'Add to Cart',
+              style: TextStyle(
+                color: Color(0xFF1A1A1A),
+                fontWeight: FontWeight.bold,
+                fontFamily: 'Poppins',
+              ),
+            ),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  '${product.nomProduit}',
+                  style: const TextStyle(
+                    color: Color(0xFF555555),
+                    fontSize: 14,
+                    fontFamily: 'Poppins',
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'Price: ${product.prix} DH',
+                  style: const TextStyle(
+                    color: Color(0xFF2D6723),
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    fontFamily: 'Poppins',
+                  ),
+                ),
+                const SizedBox(height: 16),
+                TextField(
+                  controller: quantityController,
+                  keyboardType: TextInputType.number,
+                  decoration: InputDecoration(
+                    labelText: 'Quantity',
+                    labelStyle: const TextStyle(
+                      color: Color(0xFF555555),
+                      fontFamily: 'Poppins',
+                    ),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      borderSide: const BorderSide(color: Color(0xFFD5B694)),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      borderSide: const BorderSide(color: Color(0xFF2D6723)),
+                    ),
+                    contentPadding: const EdgeInsets.all(12),
+                  ),
+                  style: const TextStyle(
+                    fontSize: 14,
+                    color: Color(0xFF1A1A1A),
+                  ),
+                ),
+              ],
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                style: TextButton.styleFrom(
+                  foregroundColor: const Color(0xFF555555),
+                ),
+                child: const Text(
+                  'Cancel',
+                  style: TextStyle(
+                    fontFamily: 'Poppins',
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  final quantity =
+                      int.tryParse(quantityController.text.trim()) ?? 0;
+                  if (quantity <= 0) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Please enter a valid quantity'),
+                        backgroundColor: Color(0xFF863A3A),
+                      ),
+                    );
+                    return;
+                  }
+
+                  Navigator.pop(context);
+                  _addProductToCart(product, quantity);
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF2D6723),
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+                child: const Text(
+                  'Add to Cart',
+                  style: TextStyle(
+                    fontFamily: 'Poppins',
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+            ],
+          ),
+    );
+  }
+
+  // Function to add product to cart
+  Future<void> _addProductToCart(Product product, int quantity) async {
+    try {
+      final success = await CrudShopping.addProductToPanier(
+        productId: product.productId,
+        quantity: quantity,
+        unitPrice: product.prix,
+      );
+
+      if (success) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('$quantity x ${product.nomProduit} added to cart'),
+            backgroundColor: const Color(0xFF2D6723),
+            duration: const Duration(seconds: 2),
+          ),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Failed to add product to cart'),
+            backgroundColor: Color(0xFF863A3A),
+          ),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error: $e'),
+          backgroundColor: const Color(0xFF863A3A),
+        ),
+      );
+    }
   }
 
   Widget _buildImageGallery() {
@@ -696,7 +852,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                   onPressed:
                       widget.product.quantiteStock > 0
                           ? () {
-                            _addToCart(context);
+                            _showAddToCartDialog(widget.product);
                           }
                           : null,
                   style: ElevatedButton.styleFrom(

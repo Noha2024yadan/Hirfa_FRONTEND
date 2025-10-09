@@ -3,6 +3,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:hirfa_frontend/Cooperative/cooperative_profile.dart';
 import 'package:hirfa_frontend/Cooperative/discover_cooperative.dart';
 import 'package:hirfa_frontend/Cooperative/home_cooperative.dart';
+import 'package:hirfa_frontend/Cooperative/main_chat.dart';
 import 'package:hirfa_frontend/Cooperative/order_cooperative.dart';
 import 'package:hirfa_frontend/Cooperative/product_add.dart';
 
@@ -21,6 +22,7 @@ class _GestionCooperativeState extends State<GestionCooperative> {
     OrderCooperative(),
     CooperativeProfileScreen(),
   ];
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -28,11 +30,10 @@ class _GestionCooperativeState extends State<GestionCooperative> {
         backgroundColor: Colors.white,
         elevation: 2.0,
         automaticallyImplyLeading: false,
-        titleSpacing: 0, // pour coller l'image à gauche
+        titleSpacing: 0,
         title: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            // 👈 Image à gauche
             Padding(
               padding: const EdgeInsets.only(left: 12.0),
               child: Image.asset(
@@ -41,16 +42,10 @@ class _GestionCooperativeState extends State<GestionCooperative> {
                 fit: BoxFit.contain,
               ),
             ),
-
-            // 👉 Icônes à droite
             Row(
               children: [
                 IconButton(
-                  icon: FaIcon(
-                    FontAwesomeIcons.plus,
-                    color: Colors.black, // couleur par défaut
-                  ),
-                  // ← Icône FontAwesome
+                  icon: FaIcon(FontAwesomeIcons.plus, color: Colors.black),
                   onPressed: () {
                     Navigator.push(
                       context,
@@ -60,7 +55,12 @@ class _GestionCooperativeState extends State<GestionCooperative> {
                 ),
                 IconButton(
                   icon: FaIcon(FontAwesomeIcons.comment, color: Colors.black),
-                  onPressed: () {},
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => MainChat()),
+                    );
+                  },
                 ),
               ],
             ),
@@ -71,7 +71,7 @@ class _GestionCooperativeState extends State<GestionCooperative> {
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: currentIndex,
         onTap: (index) => setState(() => currentIndex = index),
-        selectedItemColor: const Color(0xFF2d6723),
+        selectedItemColor: const Color(0xFF2D6723),
         unselectedItemColor: Colors.grey,
         type: BottomNavigationBarType.fixed,
         items: const [

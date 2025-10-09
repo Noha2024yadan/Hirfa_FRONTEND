@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:hirfa_frontend/Cooperative/discussion_page.dart'; // Add this import
 
 class ViewCooperativeProfileDesigner extends StatefulWidget {
   final Map<String, dynamic> cooperative;
@@ -12,6 +13,23 @@ class ViewCooperativeProfileDesigner extends StatefulWidget {
 
 class _ViewCooperativeProfileDesignerState
     extends State<ViewCooperativeProfileDesigner> {
+  // New method to navigate to discussion page
+  void _navigateToDiscussion() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder:
+            (context) => DiscussionPage(
+              otherUserId:
+                  widget.cooperative['cooperative_id']?.toString() ?? '1',
+              otherUsername: widget.cooperative['brand'] ?? 'Cooperative',
+              otherProfile: '',
+              otherUserType: 'cooperative',
+            ),
+      ),
+    );
+  }
+
   Widget _buildProfileHeader() {
     final DateTime dateTime = DateTime.parse(
       widget.cooperative['date_creation'].toString(),
@@ -189,7 +207,7 @@ class _ViewCooperativeProfileDesignerState
           ),
           SizedBox(height: 20),
           ElevatedButton.icon(
-            onPressed: () {},
+            onPressed: _navigateToDiscussion, // Updated to use new method
             icon: Icon(Icons.message),
             label: Text('Send Message to Cooperative'),
             style: ElevatedButton.styleFrom(

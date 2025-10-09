@@ -52,5 +52,15 @@
 	</dict>
 	<key>keychain-sharing</key>
 	<true/>
+	<!-- Photo Library Permissions -->
+    <key>NSPhotoLibraryUsageDescription</key>
+    <string>This app needs access to your photos to let you share images in chats</string>
+    
+    <key>NSPhotoLibraryAddUsageDescription</key>
+    <string>This app needs access to save photos to your library</string>
+    
+    <!-- Camera Permissions -->
+    <key>NSCameraUsageDescription</key>
+    <string>This app needs access to camera to take photos for sharing in chats</string>
 </dict>
 </plist>

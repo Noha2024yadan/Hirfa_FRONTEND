@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:hirfa_frontend/Cooperative/main_chat.dart';
 import 'package:hirfa_frontend/Designers/design_add.dart';
 import 'package:hirfa_frontend/Designers/designer_profile.dart';
 import 'package:hirfa_frontend/Designers/discover_designer.dart';
@@ -19,6 +20,7 @@ class _GestionDesignerState extends State<GestionDesigner> {
     DiscoverDesigner(),
     DesignerProfileScreen(),
   ];
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -26,11 +28,10 @@ class _GestionDesignerState extends State<GestionDesigner> {
         backgroundColor: Colors.white,
         elevation: 2.0,
         automaticallyImplyLeading: false,
-        titleSpacing: 0, // pour coller l'image à gauche
+        titleSpacing: 0,
         title: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            // 👈 Image à gauche
             Padding(
               padding: const EdgeInsets.only(left: 12.0),
               child: Image.asset(
@@ -39,16 +40,10 @@ class _GestionDesignerState extends State<GestionDesigner> {
                 fit: BoxFit.contain,
               ),
             ),
-
-            // 👉 Icônes à droite
             Row(
               children: [
                 IconButton(
-                  icon: FaIcon(
-                    FontAwesomeIcons.plus,
-                    color: Colors.black, // couleur par défaut
-                  ),
-                  // ← Icône FontAwesome
+                  icon: FaIcon(FontAwesomeIcons.plus, color: Colors.black),
                   onPressed: () {
                     Navigator.push(
                       context,
@@ -58,7 +53,12 @@ class _GestionDesignerState extends State<GestionDesigner> {
                 ),
                 IconButton(
                   icon: FaIcon(FontAwesomeIcons.comment, color: Colors.black),
-                  onPressed: () {},
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => MainChat()),
+                    );
+                  },
                 ),
               ],
             ),
@@ -69,7 +69,7 @@ class _GestionDesignerState extends State<GestionDesigner> {
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: currentIndex,
         onTap: (index) => setState(() => currentIndex = index),
-        selectedItemColor: const Color(0xFF2d6723),
+        selectedItemColor: const Color(0xFF2D6723),
         unselectedItemColor: Colors.grey,
         type: BottomNavigationBarType.fixed,
         items: const [

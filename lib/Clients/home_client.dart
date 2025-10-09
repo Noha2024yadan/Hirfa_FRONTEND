@@ -6,6 +6,7 @@ import 'package:hirfa_frontend/Clients/Models/product.dart';
 import 'package:hirfa_frontend/Clients/ServicesClients/crud_shopping.dart';
 import 'package:hirfa_frontend/Clients/ServicesClients/product_service.dart';
 import 'package:hirfa_frontend/Clients/client_profile.dart';
+import 'package:hirfa_frontend/Clients/order_tracking.dart';
 import 'package:hirfa_frontend/Clients/shopping_cart.dart';
 import 'package:hirfa_frontend/Clients/product_detail_screen.dart';
 import 'package:hirfa_frontend/Widgets/bottom_navigation.dart';
@@ -1194,7 +1195,7 @@ class _HomeClientState extends State<HomeClient> {
           ),
         );
       case 1:
-        return const Center(child: Text('Discover Page'));
+        return OrderTrackingScreen();
       case 2:
         return ShoppingCart();
       case 3:

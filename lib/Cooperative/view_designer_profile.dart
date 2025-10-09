@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hirfa_frontend/Cooperative/design_detail_screen.dart';
+import 'package:hirfa_frontend/Cooperative/discussion_page.dart'; // Add this import
 import 'package:hirfa_frontend/Designers/ServicesDesigners/crud_design.dart';
 
 class ViewDesignerProfile extends StatefulWidget {
@@ -16,8 +17,6 @@ class _ViewDesignerProfileState extends State<ViewDesignerProfile> {
   List<Map<String, dynamic>> _designs = [];
   bool _isLoading = true;
   bool _isError = false;
-  final TextEditingController _messageController = TextEditingController();
-  bool _isContacting = false;
 
   @override
   void initState() {
@@ -53,104 +52,19 @@ class _ViewDesignerProfileState extends State<ViewDesignerProfile> {
     }
   }
 
-  Future<void> _contactDesigner() async {
-    if (_messageController.text.isEmpty) return;
-
-    setState(() {
-      _isContacting = true;
-    });
-
-    final result = await CrudDesign.contactDesigner(
-      designerId: widget.designerId,
-      message: _messageController.text,
-    );
-
-    setState(() {
-      _isContacting = false;
-    });
-
-    if (result == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Message sent successfully!'),
-          backgroundColor: Color(0xFF2D6723),
-        ),
-      );
-      _messageController.clear();
-      Navigator.pop(context);
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Failed to send message: $result'),
-          backgroundColor: Colors.red,
-        ),
-      );
-    }
-  }
-
-  void _showContactDialog() {
-    showDialog(
-      context: context,
-      builder:
-          (context) => AlertDialog(
-            title: Text(
-              'Contact Designer',
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                color: Color(0xFF1A1A1A),
-                fontFamily: 'Poppins',
-              ),
+  // New method to navigate to discussion page
+  void _navigateToDiscussion() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder:
+            (context) => DiscussionPage(
+              otherUserId: widget.designerId,
+              otherUsername: _designerInfo?['username'] ?? 'Designer',
+              otherProfile: '',
+              otherUserType: 'designer',
             ),
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  'Send a message to ${_designerInfo?['username'] ?? 'the designer'}',
-                  style: TextStyle(
-                    color: Color(0xFF666666),
-                    fontFamily: 'Poppins',
-                  ),
-                ),
-                SizedBox(height: 16),
-                TextField(
-                  controller: _messageController,
-                  maxLines: 4,
-                  decoration: InputDecoration(
-                    hintText: 'Type your message here...',
-                    border: OutlineInputBorder(),
-                    contentPadding: EdgeInsets.all(12),
-                  ),
-                ),
-              ],
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: Text(
-                  'Cancel',
-                  style: TextStyle(color: Color(0xFF666666)),
-                ),
-              ),
-              ElevatedButton(
-                onPressed: _isContacting ? null : _contactDesigner,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Color(0xFF2D6723),
-                  foregroundColor: Colors.white,
-                ),
-                child:
-                    _isContacting
-                        ? SizedBox(
-                          width: 16,
-                          height: 16,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            color: Colors.white,
-                          ),
-                        )
-                        : Text('Send Message'),
-              ),
-            ],
-          ),
+      ),
     );
   }
 
@@ -257,13 +171,6 @@ class _ViewDesignerProfileState extends State<ViewDesignerProfile> {
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              // _buildStatItem(
-              //   '${_designerInfo?['projects_completed'] ?? 0}',
-              //   'Projects',
-              // ),
-              // SizedBox(width: 20),
-              // _buildStatItem('${_designerInfo?['rating'] ?? '0.0'}', 'Rating'),
-              // SizedBox(width: 20),
               _buildStatItem(
                 '${_designerInfo?['tarifs']?.toStringAsFixed(0) ?? '0'} DH',
                 'Hourly Rate',
@@ -337,7 +244,7 @@ class _ViewDesignerProfileState extends State<ViewDesignerProfile> {
           ),
           SizedBox(height: 20),
           ElevatedButton.icon(
-            onPressed: _showContactDialog,
+            onPressed: _navigateToDiscussion, // Updated to use new method
             icon: Icon(Icons.message),
             label: Text('Send Message'),
             style: ElevatedButton.styleFrom(

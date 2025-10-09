@@ -1,15 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:hirfa_frontend/Cooperative/order_management.dart';
 
-class OrderCooperative extends StatefulWidget {
+class OrderCooperative extends StatelessWidget {
   const OrderCooperative({super.key});
 
   @override
-  State<OrderCooperative> createState() => _OrderCooperativeState();
-}
-
-class _OrderCooperativeState extends State<OrderCooperative> {
-  @override
   Widget build(BuildContext context) {
-    return const Placeholder();
+    return OrderManagementScreen();
   }
 }
